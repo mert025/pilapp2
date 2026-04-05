@@ -19,11 +19,21 @@ jobs:
         with:
           gradle-version: '8.4'
       - name: Grant execute permission for gradlew
-        run: chmod +x gradlew || true
+        run: chmod +x gradlew || chmod +x */gradlew || true
       - name: Build with Gradle
-        run: gradle assembleDebug
+        run: |
+          if [ -f build.gradle.kts ]; then
+            gradle assembleDebug
+          elif [ -f "pil gösteren uygulama/build.gradle.kts" ]; then
+            cd "pil gösteren uygulama"
+            gradle assembleDebug
+          else
+            DIR=$(dirname $(find . -name build.gradle.kts | head -n 1))
+            cd "$DIR"
+            gradle assembleDebug
+          fi
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: pil-gosterici-app
-          path: app/build/outputs/apk/debug/app-debug.apk
+          path: '**/app/build/outputs/apk/debug/app-debug.apk'
